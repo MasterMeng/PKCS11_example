@@ -5,6 +5,9 @@ from PyKCS11 import *
 # ptvsd.enable_attach(address=('0.0.0.0', 5678))
 # ptvsd.wait_for_attach()
 
+aes_iv = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+          0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f]
+
 
 class OpenCryptoKi:
     def __init__(self, libpath):
@@ -109,7 +112,7 @@ class OpenCryptoKi:
             pubTem, priTem, MechanismRSAGENERATEKEYPAIR)
 
     def wrap(self, key, wrapped):
-        return self.session.wrapKey(key, wrapped, Mechanism(CKM_AES_ECB))
+        return self.session.wrapKey(key, wrapped, Mechanism(CKM_AES_CBC_PAD, aes_iv))
 
 
 if __name__ == "__main__":
@@ -130,6 +133,9 @@ if __name__ == "__main__":
 
     pub, pri = t.genkeypair('RSA Key')
     pri = t.findobjs(CKO_PRIVATE_KEY, CKK_RSA, 'RSA Key')[0]
-    print(pri)
+    # print(pri)
 
+    wrapped = t.wrap(obj, pri)
+    print(wrapped)
+    print(bytes(wrapped))
     t.logout()
