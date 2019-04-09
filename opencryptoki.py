@@ -111,8 +111,20 @@ class OpenCryptoKi:
         return self.session.generateKeyPair(
             pubTem, priTem, MechanismRSAGENERATEKEYPAIR)
 
-    def wrap(self, key, wrapped):
-        return self.session.wrapKey(key, wrapped, Mechanism(CKM_AES_CBC_PAD, aes_iv))
+    def wrap(self, key, wrapping):
+        return self.session.wrapKey(key, wrapping, Mechanism(CKM_AES_CBC_PAD, aes_iv))
+
+    def unwrap(self, key, wrapped, wrapped_class):
+        return self.session.unwrapKey(key, wrapped, [(CKA_CLASS, wrapped_class)], Mechanism(CKM_AES_CBC_PAD, aes_iv))
+
+    def encrypt(self, key, msg):
+        enc = self.session.encrypt(
+            key, msg.encode('utf-8'), Mechanism(CKM_AES_CBC))
+        return bytes(enc)
+
+    def decrypt(self, key, enc):
+        dec = self.session.decrypt(key, enc, Mechanism(CKM_AES_CBC))
+        return bytes(dec)
 
 
 if __name__ == "__main__":
